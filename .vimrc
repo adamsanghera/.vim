@@ -155,7 +155,7 @@ let no_buffers_menu=1
 if !exists('g:not_finish_vimplug')
   let g:rehash256 = 1
   let g:molokai_original = 1
-  colorscheme molokai
+  silent! colorscheme molokai
 endif
 
 set mousemodel=popup
