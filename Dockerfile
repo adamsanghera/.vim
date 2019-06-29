@@ -28,5 +28,5 @@ RUN cd ~/vimtemp && ./configure \
 RUN cd ~/vimtemp && make && make install
 RUN cd ~/ && git clone https://github.com/adamsanghera/.vim.git
 RUN cd ~/.vim && ./setup.sh
-# RUN vim +PlugInstall +qall
-# CMD /bin/bash
+RUN vim +PlugInstall +qall
+CMD /bin/bash
