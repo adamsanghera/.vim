@@ -26,7 +26,7 @@ RUN cd ~/vimtemp && ./configure \
     --with-compiledby="adamsanghera" \
     --enable-fail-if-missing
 RUN cd ~/vimtemp && make && make install
-RUN git clone https://github.com/adamsanghera/.vim.git ~/.vim
+RUN cd ~/ && git clone https://github.com/adamsanghera/.vim.git
 RUN cd ~/.vim && ./setup.sh
-RUN vim +PlugInstall +qall
-CMD /bin/bash
+# RUN vim +PlugInstall +qall
+# CMD /bin/bash
