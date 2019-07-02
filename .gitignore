@@ -1,4 +1,5 @@
 plugged
 session
 ftplugin
+autoload/gocomplete.vim
 spell
