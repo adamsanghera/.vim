@@ -13,6 +13,9 @@ Plug 'ledger/vim-ledger'
 
 "" Languages
 
+""" Thrift
+Plug 'solarnz/thrift.vim'
+
 """ Erlang
 Plug 'vim-erlang/vim-erlang-runtime'
 Plug 'vim-erlang/vim-erlang-compiler'
@@ -38,7 +41,10 @@ Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 
 "" Misc
-Plug 'ervandew/supertab'
+"Plug 'ervandew/supertab'
+Plug 'Shougo/deoplete.nvim'
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
 
 """ Spotify
 Plug 'HendrikPetertje/vimify'
@@ -101,9 +107,13 @@ Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 " End plugins
 call plug#end()
 
-let g:UltiSnipsExpandTrigger           = '<tab>'
-let g:UltiSnipsJumpForwardTrigger      = '<tab>'
-let g:UltiSnipsJumpBackwardTrigger     = '<s-tab>'
+let g:deoplete#enable_at_startup = 1
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsListSnippets="<c-tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+let g:UltiSnipsSnippetsDir="~/.vim/myUltiSnips"
+let g:UltiSnipsSnippetDirectories=["myUltiSnips"]
 
 " Custom mappings, etc.
 "" Encoding
@@ -292,7 +302,7 @@ let g:ale_linters = {
 let g:ale_fixers = {
 \    'go': ['gofmt', 'goimports'],
 \    '*': ['remove_trailing_lines', 'trim_whitespace'],
-\    'javascript': [],
+\    'javascript': ['prettier'],
 \}
 let g:ale_go_bingo_executable = 'gopls'
 let g:ale_fix_on_save = 1

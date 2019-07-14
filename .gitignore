@@ -3,3 +3,4 @@ session
 ftplugin
 autoload/gocomplete.vim
 spell
+myUltiSnips
