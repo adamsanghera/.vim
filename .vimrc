@@ -99,9 +99,11 @@ let g:session_command_aliases = 1
 "" Deoplete
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#auto_complete_delay = 200
-call deoplete#custom#option('sources', {
-\ '_': ['ale', 'buffer'],
-\})
+if exists('*deoplete#custom#option')
+  call deoplete#custom#option('sources', {
+  \ '_': ['ale', 'buffer'],
+  \})
+endif
 map <F2> :call deoplete#toggle()<CR>
 "" UltiSnips
 let g:UltiSnipsExpandTrigger="<tab>"
