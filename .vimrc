@@ -1,4 +1,4 @@
-" Automatically installs vim-plug
+" Install vim-plug if needed
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -8,106 +8,102 @@ endif
 " Plugins section
 call plug#begin('~/.vim/plugged')
 
-"" Ledger
+"" Random plugins offering language-specific support
+""" Go
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+""" Ledger
 Plug 'ledger/vim-ledger'
-
-"" Languages
-
 """ Thrift
 Plug 'solarnz/thrift.vim'
-
 """ Erlang
 Plug 'vim-erlang/vim-erlang-runtime'
 Plug 'vim-erlang/vim-erlang-compiler'
 Plug 'vim-erlang/vim-erlang-omnicomplete'
 Plug 'vim-erlang/vim-erlang-tags'
-
-""" Jsx
+""" JS/X, with Flow
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
-
-""" Flow (react)
 Plug 'flowtype/vim-flow'
-
 """ Rust
 Plug 'neomake/neomake', { 'for': ['rust'] }
 if executable('rustc')
     Plug 'rust-lang/rust.vim', { 'for': 'rust' }
     Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 endif
-
 """ Markdown / Pandoc
 Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 
-"" Misc
-"Plug 'ervandew/supertab'
-Plug 'Shougo/deoplete.nvim'
-Plug 'roxma/nvim-yarp'
-Plug 'roxma/vim-hug-neovim-rpc'
-
-""" Spotify
-Plug 'HendrikPetertje/vimify'
-
-""" HackerNews
-Plug 'adelarsq/vim-hackernews'
-
-""" Reddit
-Plug 'DougBeney/vim-reddit'
-
-""" Buffer management
+"" Efficiecny in Motions
+""" Toggling between files
+Plug 'tpope/vim-projectionist'
+""" Kill a buffer without killing its window
 Plug 'qpkorr/vim-bufkill'
-
-""" Web Search
-Plug 'linluk/vim-websearch'
-
-""" Buffer management
-Plug 'qpkorr/vim-bufkill'
-
-""" Web Search
-Plug 'linluk/vim-websearch'
-
-""" Snippets
+""" Code Snippets
 Plug 'sirver/ultisnips'
-
-""" Color
-Plug 'tomasr/molokai'
-
-""" Search
+Plug 'honza/vim-snippets'
+""" Fuzzy file finder
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-
-""" NERDTree, for browsing the fs
+""" Filesystem browsing
 Plug 'scrooloose/nerdtree'
-
-""" Makes it easier to deal with brackets and such
-Plug 'tpope/vim-surround'
-
-""" Source Code exploration
-Plug 'majutsushi/tagbar'
-
-""" Syntax Checking
-Plug 'w0rp/ale'
-
-Plug 'junegunn/vim-easy-align'
 Plug 'jistr/vim-nerdtree-tabs'
+""" Bracket-based motions
+Plug 'tpope/vim-surround'
+""" Little windows that describe things
+Plug 'majutsushi/tagbar'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'airblade/vim-gitgutter'
+""" Sessions
 Plug 'xolox/vim-misc'
 Plug 'xolox/vim-session'
+""" Autocomplete & deps
+Plug 'Shougo/deoplete.nvim'
+Plug 'roxma/nvim-yarp'
+Plug 'roxma/vim-hug-neovim-rpc'
+Plug 'ervandew/supertab'
+""" Syntax-linting/fixing Engine
+Plug 'w0rp/ale'
+
+"" Silly things
+""" Spotify
+Plug 'HendrikPetertje/vimify'
+""" HackerNews
+Plug 'adelarsq/vim-hackernews'
+""" Reddit
+Plug 'DougBeney/vim-reddit'
+""" Web Search
+Plug 'linluk/vim-websearch'
+
+"" Aesthetics
+""" Color
+Plug 'tomasiser/vim-code-dark'
+
+"" ???
+Plug 'junegunn/vim-easy-align'
 Plug 'Shougo/vimproc.vim', {'do':'make'}
 Plug 'Shougo/vimshell.vim'
-Plug 'honza/vim-snippets'
-
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " End plugins
 call plug#end()
 
+" Plugin config
+" Session
+let g:session_directory = "~/.vim/session"
+let g:session_autoload = "no"
+let g:session_autosave = "no"
+let g:session_command_aliases = 1
+"" Deoplete
 let g:deoplete#enable_at_startup = 1
+let g:deoplete#auto_complete_delay = 200
+call deoplete#custom#option('sources', {
+\ '_': ['ale', 'buffer'],
+\})
+map <F2> :call deoplete#toggle()<CR>
+"" UltiSnips
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsListSnippets="<c-tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
@@ -115,98 +111,82 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 let g:UltiSnipsSnippetsDir="~/.vim/myUltiSnips"
 let g:UltiSnipsSnippetDirectories=["myUltiSnips"]
 
-" Custom mappings, etc.
+" Vim config
 "" Encoding
 set encoding=utf-8
 set fileencoding=utf-8
 set fileencodings=utf-8
+"" Misc.
 set bomb
+set fileformats=unix,dos,mac
 set binary
 set ttyfast
-
-"" Fix backspace indent
+set hidden
 set backspace=indent,eol,start
-
-"" Tabs. May be overriten by autocmd rules
+"" Tabs, overriten by autocmd rules
 set tabstop=4
 set softtabstop=0
 set shiftwidth=4
 set expandtab
-
-"" Map leader to ,
+"" Leader
 let mapleader=','
-
-"" Enable hidden buffers
-set hidden
-
-"" Searching
+"" Search
 set hlsearch
 set incsearch
 set ignorecase
 set smartcase
-
-"" Directories for swp files
+"" Yolo 4 speed
 set nobackup
 set noswapfile
-
-set fileformats=unix,dos,mac
-
+"" Bash me up
 if exists('$SHELL')
     set shell=$SHELL
 else
     set shell=/bin/sh
 endif
-
-" session management
-let g:session_directory = "~/.vim/session"
-let g:session_autoload = "no"
-let g:session_autosave = "no"
-let g:session_command_aliases = 1
-
+"" Disable the blinking cursor.
+set gcr=a:blinkon0
+set scrolloff=5
+"" Status bar
+set laststatus=2
+set statusline=%F%m%r%h%w%=(%{&ff}/%Y)\ (line\ %l\/%L,\ col\ %c)\
+"" Use modeline overrides
+set modeline
+set modelines=10
+"" Title
+set title
+set titleold="Terminal"
+set titlestring=%F
+"" Unsorted
 syntax on
 set ruler
 set number
-
 let no_buffers_menu=1
 if !exists('g:not_finish_vimplug')
   let g:rehash256 = 1
   let g:molokai_original = 1
-  silent! colorscheme molokai
+  silent! colorscheme codedark
 endif
-
 set mousemodel=popup
 set t_Co=256
 set guioptions=egmrti
 set gfn=Monospace\ 10
 
-"" Disable the blinking cursor.
-set gcr=a:blinkon0
-set scrolloff=5
 
-"" Status bar
-set laststatus=2
-
-"" Use modeline overrides
-set modeline
-set modelines=10
-
-set title
-set titleold="Terminal"
-set titlestring=%F
-
-set statusline=%F%m%r%h%w%=(%{&ff}/%Y)\ (line\ %l\/%L,\ col\ %c)\
-
-" Search mappings: These will make it so that going to the next one in a
-" search will center on the line it's found in.
+" Mappings
+"" Search centers on line of interest.
 nnoremap n nzzzv
 nnoremap N Nzzzv
+"" Easier splits
+noremap <Leader>h :<C-u>split<CR>
+noremap <Leader>v :<C-u>vsplit<CR>
 
 if exists("*fugitive#statusline")
   set statusline+=%{fugitive#statusline()}
 endif
 
 " vim-airline
-let g:airline_theme = 'powerlineish'
+let g:airline_theme = 'codedark'
 let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#tabline#enabled = 1
@@ -215,6 +195,13 @@ let g:airline_skip_empty_sections = 1
 
 " Change how tabs are displayed
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+autocmd BufNewFile,BufRead *.py setlocal noautoindent
+
+augroup filetype
+  au! BufRead,BufNewFile *.proto setfiletype proto
+augroup end
+
+autocmd FileType proto setlocal foldmethod=indent
 
 augroup completion_preview_close
   autocmd!
@@ -253,23 +240,16 @@ augroup go
   au FileType go nmap <leader>rb :<C-u>call <SID>build_go_files()<CR>
 augroup END
 
-" Split
-noremap <Leader>h :<C-u>split<CR>
-noremap <Leader>v :<C-u>vsplit<CR>
 
 " Tagbar
 nmap <silent> <F4> :TagbarToggle<CR>
 let g:tagbar_autofocus = 1
 
-"" Tabs
-" nnoremap <Tab> gt
-" nnoremap <S-Tab> gT
-" nnoremap <silent> <S-t> :tabnew<CR>
-
 " Disable visualbell
 set noerrorbells visualbell t_vb=
 if has('autocmd')
   autocmd GUIEnter * set visualbell t_vb=
+  filetype plugin indent on
 endif
 
 " Load spotify token
@@ -291,21 +271,55 @@ augroup END
 " Syntax checking
 let g:ale_linters_explicit = 1
 let g:ale_python_pylint_change_directory = 0
-let g:ale_python_pylint_options = '--rcfile=/Users/adam.sanghera/data/.arc/.pylintrc'
+let g:ale_python_pylint_options = '--rcfile /Users/adam.sanghera/data/pylintrc'
+let g:ale_python_autopep8_options = '--aggressive --ignore-local-config --max-line-length 80'
 let g:ale_linters_aliases = {'jsx': ['css', 'javascript']}
 let g:ale_linters = {
-\    'go': ['bingo', 'vet', 'golint', 'errcheck', 'go build'],
-\    'python': ['pylint'],
-\    'javascript': ['eslint', 'prettier'],
-\    'proto': ['protoc-gen-lint'],
+\  'go': ['bingo', 'vet', 'golint', 'errcheck', 'go build'],
+\  'python': ['pylint', 'pyls'],
+\  'javascript': ['eslint', 'prettier'],
+\  'proto': ['protoc-gen-lint'],
 \}
 let g:ale_fixers = {
-\    'go': ['gofmt', 'goimports'],
-\    '*': ['remove_trailing_lines', 'trim_whitespace'],
-\    'javascript': ['prettier'],
+\  'go': ['gofmt', 'goimports'],
+\  '*': 'trim_whitespace',
+\  'javascript': ['prettier'],
+\  'python': ['autopep8'],
 \}
 let g:ale_go_bingo_executable = 'gopls'
 let g:ale_fix_on_save = 1
+let g:ale_proto_protoc_gen_lint_options = '-I /Users/adam.sanghera/data/protobuf/src'
+let g:ale_python_pls_options = '-vv --log-file ~/yeet'
+let g:ale_python_pyls_config = {
+\  'pyls': {
+\    'plugins': {
+\      'pycodestyle': {
+\        'enabled': v:false
+\      },
+\      'pylint': {
+\        'enabled': v:false
+\      },
+\      'pyflakes': {
+\        'enabled': v:false
+\      },
+\      'pydocstyle': {
+\        'enabled': v:false
+\      },
+\      'rope': {
+\        'enabled': v:false
+\      },
+\      'mccabe': {
+\        'enabled': v:false
+\      },
+\      'autopep8': {
+\        'enabled': v:false
+\      },
+\      'papf': {
+\        'enabled': v:false
+\      }
+\    }
+\  },
+\}
 
 " Rust experience
 let g:racer_cmd = "/Users/adamsanghera/.cargo/bin/racer"
@@ -318,9 +332,6 @@ au FileType rust nmap <leader>rs <Plug>(rust-def-split)
 autocmd Filetype javascript setlocal tabstop=2
 autocmd Filetype javascript setlocal shiftwidth=2
 
-" vertical f
-nnoremap <leader>f :<c-u>exe line('.').'/\%'.col('.').'c'.nr2char(getchar())<cr>
-
 " ledger config
 au BufNewFile,BufRead *.ldg,*.ledger setf ledger | comp ledger
 let g:ledger_maxwidth = 120
@@ -330,3 +341,53 @@ function LedgerSort()
     :%LedgerAlign
 endfunction
 command LedgerSort call LedgerSort()
+
+" Projectionist config
+let g:projectionist_heuristics = {
+    \ "*": {
+    \   "*_test.py": {
+    \     "alternate": "{}.py",
+    \     "dispatch": "cd $DATA_REPO && $DATA_REPO/pants test $(echo {file|dirname}:{basename}_test | sed -e \"s|$DATA_REPO/||\")",
+    \     "type": "test"
+    \   },
+    \   "*.py": {
+    \     "alternate": "{}_test.py",
+    \     "type": "source"
+    \   },
+    \   "*.test.js": {
+    \     "alternate": "{}.js",
+    \     "dispatch": "cd $DATA_REPO && npm test {file}",
+    \     "type": "test"
+    \   },
+    \   "*.js": {
+    \     "alternate": "{}.test.js",
+    \     "type": "source"
+    \   },
+    \   "*.test.jsx": {
+    \     "alternate": "{}.jsx",
+    \     "dispatch": "cd $DATA_REPO && npm test {file}",
+    \     "type": "test"
+    \   },
+    \   "*.jsx": {
+    \     "alternate": "{}.test.jsx",
+    \     "type": "source"
+    \   }
+    \ },
+    \}
+
+let g:SuperTabDefaultCompletionType = "<c-n>"
+
+command! -bang -nargs=* Rg
+    \ call fzf#vim#grep(
+    \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+    \   <bang>0 ? fzf#vim#with_preview('up:60%')
+    \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+    \   <bang>0)
+
+set colorcolumn=80,120
+
+highlight BadWhitespace ctermbg=red guibg=red
+" Display tabs at the beginning of a line in Python mode as bad.
+au BufRead,BufNewFile *.py,*.pyw match BadWhitespace /^\t\+/
+" Make trailing whitespace be flagged as bad.
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
