@@ -98,10 +98,11 @@ let g:session_autosave = "no"
 let g:session_command_aliases = 1
 "" Deoplete
 let g:deoplete#enable_at_startup = 1
-let g:deoplete#auto_complete_delay = 200
+let g:deoplete#auto_complete_delay = 100
 if exists('*deoplete#custom#option')
   call deoplete#custom#option('sources', {
   \ '_': ['ale', 'buffer'],
+  \ 'py' ['ale'],
   \})
 endif
 map <F2> :call deoplete#toggle()<CR>
@@ -182,6 +183,11 @@ nnoremap N Nzzzv
 "" Easier splits
 noremap <Leader>h :<C-u>split<CR>
 noremap <Leader>v :<C-u>vsplit<CR>
+"" FZF fast
+noremap <Leader>f :call fzf#run({'source': 'fd --type f --hidden -E .git', 'sink': 'e'})<CR>
+noremap <Leader>r :Rg!<CR>
+"" Projectionoist fast
+noremap <Leader>a :A<CR>
 
 if exists("*fugitive#statusline")
   set statusline+=%{fugitive#statusline()}
@@ -201,6 +207,8 @@ autocmd BufNewFile,BufRead *.py setlocal noautoindent
 
 augroup filetype
   au! BufRead,BufNewFile *.proto setfiletype proto
+  au! BufRead,BufNewFile *.avsc setfiletype json
+  au! BufRead,BufNewFile *.aurora setfiletype python
 augroup end
 
 autocmd FileType proto setlocal foldmethod=indent
@@ -210,7 +218,7 @@ augroup completion_preview_close
   if v:version > 703 || v:version == 703 && has('patch598')
     autocmd CompleteDone * if !&previewwindow && &completeopt =~ 'preview' | silent! pclose | endif
   endif
-" augroup END
+augroup END
 
 " The Go experience
 let g:go_list_type = "quickfix"
@@ -241,7 +249,10 @@ augroup go
   au FileType go imap <leader>dr <esc>:<C-u>GoDeclsDir<cr>
   au FileType go nmap <leader>rb :<C-u>call <SID>build_go_files()<CR>
 augroup END
-
+augroup python
+  au!
+  au FileType python nmap gd <esc>:ALEGoToDefinition<cr>
+augroup END
 
 " Tagbar
 nmap <silent> <F4> :TagbarToggle<CR>
@@ -263,6 +274,7 @@ let g:web_search_browser = 'lynx -vikeys'
 
 " Fixing weird bd default behavior
 let g:nerdtree_tabs_autoclose=0
+let g:NERDTreeIgnore=['.git', '\.pyc$']
 
 " Support for jsx files
 augroup FiletypeGroup
@@ -276,20 +288,25 @@ let g:ale_python_pylint_change_directory = 0
 let g:ale_python_pylint_options = '--rcfile /Users/adam.sanghera/data/pylintrc'
 let g:ale_python_autopep8_options = '--aggressive --ignore-local-config --max-line-length 80'
 let g:ale_linters_aliases = {'jsx': ['css', 'javascript']}
+let g:ale_lint_on_text_changed='never'
 let g:ale_linters = {
 \  'go': ['bingo', 'vet', 'golint', 'errcheck', 'go build'],
-\  'python': ['pylint', 'pyls'],
-\  'javascript': ['eslint', 'prettier'],
+\  'html': ['prettier'],
+\  'python': ['pylint', 'pyls', 'pydocstyle'],
+\  'javascript': ['eslint', 'prettier', 'flow', 'flow-language-server'],
+\  'json': ['jsonlint'],
 \  'proto': ['protoc-gen-lint'],
 \}
 let g:ale_fixers = {
-\  'go': ['gofmt', 'goimports'],
 \  '*': 'trim_whitespace',
+\  'go': ['gofmt', 'goimports'],
+\  'html': ['prettier'],
 \  'javascript': ['prettier'],
+\  'json': ['jq'],
 \  'python': ['autopep8'],
 \}
 let g:ale_go_bingo_executable = 'gopls'
-let g:ale_fix_on_save = 1
+let g:ale_fix_on_save = 0
 let g:ale_proto_protoc_gen_lint_options = '-I /Users/adam.sanghera/data/protobuf/src'
 let g:ale_python_pls_options = '-vv --log-file ~/yeet'
 let g:ale_python_pyls_config = {
@@ -380,11 +397,13 @@ let g:projectionist_heuristics = {
 let g:SuperTabDefaultCompletionType = "<c-n>"
 
 command! -bang -nargs=* Rg
-    \ call fzf#vim#grep(
-    \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
-    \   <bang>0 ? fzf#vim#with_preview('up:60%')
-    \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-    \   <bang>0)
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --hidden --ignore-case --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview({}, 'up:60%')
+  \           : fzf#vim#with_preview({}, 'right:50%:hidden', '?'),
+  \   <bang>0)
+
+let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 set colorcolumn=80,120
 
