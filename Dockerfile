@@ -1,9 +1,23 @@
 FROM debian:latest
-RUN apt-get update && apt-get install -y build-essential git \
-        liblua5.1-dev luajit libluajit-5.1 python2-dev python3.7-dev \
-        ruby-dev libperl-dev libncurses5-dev libatk1.0-dev \
-        libx11-dev libxpm-dev libxt-dev \
-    && rm -rf /usr/local/share/vim /usr/bin/vim
+RUN apt-get update \
+    && apt-get install -y \
+        build-essential \
+        git \
+        liblua5.1-dev \
+        luajit \
+        libluajit-5.1 \
+        python2-dev # might need to be python2.7-dev \
+        python3.7-dev \
+        ruby-dev \
+        libperl-dev \
+        libncurses5-dev \
+        libatk1.0-dev \
+        libx11-dev \
+        libxpm-dev \
+        libxt-dev \
+    && rm -rf \
+        /usr/local/share/vim \
+        /usr/bin/vim
 RUN git clone https://github.com/vim/vim ~/vimtemp
 RUN cd ~/vimtemp && ./configure \
     --enable-multibyte \
