@@ -296,6 +296,7 @@ let g:ale_linters = {
 \  'javascript': ['eslint', 'prettier', 'flow', 'flow-language-server'],
 \  'json': ['jsonlint'],
 \  'proto': ['protoc-gen-lint'],
+\  'xml': ['xmllint'],
 \}
 let g:ale_fixers = {
 \  '*': 'trim_whitespace',
@@ -304,6 +305,8 @@ let g:ale_fixers = {
 \  'javascript': ['prettier'],
 \  'json': ['jq'],
 \  'python': ['autopep8'],
+\  'xml': ['xmllint'],
+\  'yml': ['prettier'],
 \}
 let g:ale_go_bingo_executable = 'gopls'
 let g:ale_fix_on_save = 0
