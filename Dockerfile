@@ -43,7 +43,7 @@ RUN cd ~/vimtemp && make && make install
 RUN cd ~/ \
     && git clone https://github.com/adamsanghera/.vim.git \
     && cd ~/.vim \
-    && git checkout v1.3
+    && git checkout v1.4
 RUN apt-get install -y python3-pip \
     && python3 -m pip install pynvim
 RUN cd ~/.vim && ./setup.sh

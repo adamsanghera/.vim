@@ -21,9 +21,7 @@ Plug 'vim-erlang/vim-erlang-compiler'
 Plug 'vim-erlang/vim-erlang-omnicomplete'
 Plug 'vim-erlang/vim-erlang-tags'
 """ JS/X, with Flow
-Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
-Plug 'flowtype/vim-flow'
 """ Rust
 Plug 'neomake/neomake', { 'for': ['rust'] }
 if executable('rustc')
@@ -31,10 +29,11 @@ if executable('rustc')
     Plug 'racer-rust/vim-racer', { 'for': 'rust' }
 endif
 """ Markdown / Pandoc
-Plug 'vim-pandoc/vim-pandoc'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 
 "" Efficiecny in Motions
+""" Async dispatch for things like make
+Plug 'tpope/vim-dispatch'
 """ Toggling between files
 Plug 'tpope/vim-projectionist'
 """ Kill a buffer without killing its window
@@ -67,6 +66,8 @@ Plug 'roxma/vim-hug-neovim-rpc'
 Plug 'ervandew/supertab'
 """ Syntax-linting/fixing Engine
 Plug 'w0rp/ale'
+""" Testing things
+Plug 'janko/vim-test'
 
 "" Silly things
 """ Spotify
@@ -98,13 +99,14 @@ let g:session_autosave = "no"
 let g:session_command_aliases = 1
 "" Deoplete
 let g:deoplete#enable_at_startup = 1
-let g:deoplete#auto_complete_delay = 100
-if exists('*deoplete#custom#option')
-  call deoplete#custom#option('sources', {
-  \ '_': ['ale', 'buffer'],
-  \ 'py' ['ale'],
-  \})
-endif
+call deoplete#custom#option({
+  \'auto_complete_delay': 1000,
+  \'sources': {
+  \  '_': ['ale', 'buffer'],
+  \  'py': ['ale'],
+  \}
+\})
+
 map <F2> :call deoplete#toggle()<CR>
 "" UltiSnips
 let g:UltiSnipsExpandTrigger="<tab>"
@@ -200,16 +202,14 @@ let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tagbar#enabled = 1
 let g:airline_skip_empty_sections = 1
+let g:airline_disable_statusline = 1
+let g:airline_highlighting_cache = 1
+let g:airline#extensions#whitespace#enabled = 0
+let g:airline#extensions#branch#enabled = 0
 
 " Change how tabs are displayed
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
 autocmd BufNewFile,BufRead *.py setlocal noautoindent
-
-augroup filetype
-  au! BufRead,BufNewFile *.proto setfiletype proto
-  au! BufRead,BufNewFile *.avsc setfiletype json
-  au! BufRead,BufNewFile *.aurora setfiletype python
-augroup end
 
 autocmd FileType proto setlocal foldmethod=indent
 
@@ -280,22 +280,30 @@ let g:NERDTreeIgnore=['.git', '\.pyc$']
 augroup FiletypeGroup
     autocmd!
     au BufNewFile,BufRead *.jsx set filetype=javascript.jsx
+    au BufRead,BufNewFile *.proto set filetype=proto
+    au BufRead,BufNewFile *.avsc set filetype=json
+    au BufRead,BufNewFile *.aurora set filetype=python
+    au BufRead,BufNewFile *.pro set filetype=prolog
+
 augroup END
 
 " Syntax checking
+let g:ale_virtualenv_dir_names = ['.virtualenvs']
 let g:ale_linters_explicit = 1
 let g:ale_python_pylint_change_directory = 0
 let g:ale_python_pylint_options = '--rcfile /Users/adam.sanghera/data/pylintrc'
-let g:ale_python_autopep8_options = '--aggressive --ignore-local-config --max-line-length 80'
 let g:ale_linters_aliases = {'jsx': ['css', 'javascript']}
 let g:ale_lint_on_text_changed='never'
 let g:ale_linters = {
 \  'go': ['bingo', 'vet', 'golint', 'errcheck', 'go build'],
 \  'html': ['prettier'],
-\  'python': ['pylint', 'pyls', 'pydocstyle'],
 \  'javascript': ['eslint', 'prettier', 'flow', 'flow-language-server'],
 \  'json': ['jsonlint'],
+\  'prolog': ['swipl'],
 \  'proto': ['protoc-gen-lint'],
+\  'python': ['pylint', 'pyls', 'pydocstyle'],
+\  'sql': ['sqlint'],
+\  'tf': ['tflint'],
 \  'xml': ['xmllint'],
 \}
 let g:ale_fixers = {
@@ -304,12 +312,14 @@ let g:ale_fixers = {
 \  'html': ['prettier'],
 \  'javascript': ['prettier'],
 \  'json': ['jq'],
-\  'python': ['autopep8'],
+\  'python': ['isort', 'black'],
+\  'sql': ['pgformatter'],
 \  'xml': ['xmllint'],
 \  'yml': ['prettier'],
 \}
 let g:ale_go_bingo_executable = 'gopls'
 let g:ale_fix_on_save = 0
+let g:ale_python_pydocstyle_options = '--ignore D102,D101,D100,D106,D203,D213,D107'
 let g:ale_proto_protoc_gen_lint_options = '-I /Users/adam.sanghera/data/protobuf/src'
 let g:ale_python_pls_options = '-vv --log-file ~/yeet'
 let g:ale_python_pyls_config = {
@@ -401,14 +411,14 @@ let g:SuperTabDefaultCompletionType = "<c-n>"
 
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --hidden --ignore-case --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" '.shellescape(<q-args>), 1,
+  \   'rg --glob !.git --column --line-number --hidden --ignore-case --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" '.shellescape(<q-args>), 1,
   \   <bang>0 ? fzf#vim#with_preview({}, 'up:60%')
   \           : fzf#vim#with_preview({}, 'right:50%:hidden', '?'),
   \   <bang>0)
 
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
-set colorcolumn=80,120
+set colorcolumn=88
 
 highlight BadWhitespace ctermbg=red guibg=red
 " Display tabs at the beginning of a line in Python mode as bad.
