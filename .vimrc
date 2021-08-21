@@ -30,6 +30,8 @@ endif
 Plug 'vim-pandoc/vim-pandoc-syntax'
 """ Csv
 Plug 'chrisbra/csv.vim'
+""" Function finder
+Plug 'tyru/current-func-info.vim'
 
 "" Efficiecny in Motions
 """ Async dispatch for things like make
@@ -81,7 +83,7 @@ Plug 'linluk/vim-websearch'
 
 "" Aesthetics
 """ Color
-Plug 'tomasiser/vim-code-dark'
+Plug 'dracula/vim', { 'as': 'dracula' }
 
 "" ???
 Plug 'junegunn/vim-easy-align'
@@ -133,6 +135,7 @@ set tabstop=4
 set softtabstop=0
 set shiftwidth=4
 set expandtab
+set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
 "" Leader
 let mapleader=','
 "" Search
@@ -169,13 +172,13 @@ set number
 let no_buffers_menu=1
 if !exists('g:not_finish_vimplug')
   let g:rehash256 = 1
-  let g:molokai_original = 1
-  silent! colorscheme codedark
+  autocmd vimenter * colorscheme dracula
 endif
 set mousemodel=popup
 set t_Co=256
 set guioptions=egmrti
 set gfn=Monospace\ 10
+set termguicolors
 
 
 " Mappings
@@ -186,21 +189,28 @@ nnoremap N Nzzzv
 noremap <Leader>h :<C-u>split<CR>
 noremap <Leader>v :<C-u>vsplit<CR>
 "" FZF fast
-noremap <Leader>f :call fzf#run({'source': 'fd --type f --hidden -E .git', 'sink': 'e'})<CR>
-noremap <Leader>r :Rg!<CR>
+command! -bang -nargs=? -complete=dir Files
+    \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+noremap <Leader>f :Files<CR>
 "" Projectionoist fast
 noremap <Leader>a :A<CR>
+"" Dispatch fast
+noremap <Leader>d :Dispatch<CR>
+"" ALEFix fast
+noremap <Leader>g :ALEFix<CR>
+"" Toggle whitespace
+noremap <Leader>l :set list<CR>
 
 if exists("*fugitive#statusline")
   set statusline+=%{fugitive#statusline()}
 endif
 
 " vim-airline
-let g:airline_theme = 'codedark'
+let g:airline_theme = 'dracula'
 let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tagbar#enabled = 1
+let g:airline#extensions#tabline#enabled = 0
+let g:airline#extensions#tagbar#enabled = 0
 let g:airline_skip_empty_sections = 1
 let g:airline_disable_statusline = 1
 let g:airline_highlighting_cache = 1
@@ -210,6 +220,7 @@ let g:airline#extensions#branch#enabled = 0
 " Change how tabs are displayed
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
 autocmd BufNewFile,BufRead *.py setlocal noautoindent
+autocmd BufRead,BufNewFile *.md setlocal spell
 
 autocmd FileType proto setlocal foldmethod=indent
 
@@ -284,25 +295,24 @@ augroup FiletypeGroup
     au BufRead,BufNewFile *.avsc set filetype=json
     au BufRead,BufNewFile *.aurora set filetype=python
     au BufRead,BufNewFile *.pro set filetype=prolog
-
 augroup END
 
 " Syntax checking
 let g:ale_virtualenv_dir_names = ['.virtualenvs']
 let g:ale_linters_explicit = 1
 let g:ale_python_pylint_change_directory = 0
-let g:ale_python_pylint_options = '--rcfile /Users/adam.sanghera/data/pylintrc'
 let g:ale_linters_aliases = {'jsx': ['css', 'javascript']}
 let g:ale_lint_on_text_changed='never'
 let g:ale_linters = {
 \  'go': ['bingo', 'vet', 'golint', 'errcheck', 'go build'],
 \  'html': ['prettier'],
-\  'javascript': ['eslint', 'prettier', 'flow', 'flow-language-server'],
+\  'markdown': ['vim', 'text'],
+\  'javascript': ['prettier', 'eslint'],
 \  'json': ['jsonlint'],
 \  'prolog': ['swipl'],
 \  'proto': ['protoc-gen-lint'],
-\  'python': ['pylint', 'pyls', 'pydocstyle'],
-\  'sql': ['sqlint'],
+\  'python': ['pylint', 'pylsp', 'pydocstyle'],
+\  'sh': ['shfmt'],
 \  'tf': ['tflint'],
 \  'xml': ['xmllint'],
 \}
@@ -312,17 +322,19 @@ let g:ale_fixers = {
 \  'html': ['prettier'],
 \  'javascript': ['prettier'],
 \  'json': ['jq'],
-\  'python': ['isort', 'black'],
-\  'sql': ['pgformatter'],
+\  'python': ['black', 'isort'],
+\  'sh': ['shfmt'],
+\  'sql': ['sqlfmt'],
 \  'xml': ['xmllint'],
 \  'yml': ['prettier'],
 \}
+let g:ale_sql_sqlfmt_options = '--tab-width 2 --use-spaces --print-width 88'
 let g:ale_go_bingo_executable = 'gopls'
 let g:ale_fix_on_save = 0
-let g:ale_python_pydocstyle_options = '--ignore D102,D101,D100,D106,D203,D213,D107'
+let g:ale_python_pydocstyle_options = '--ignore D100,D101,D102,D103,D106,D203,D212,D213,D107'
 let g:ale_proto_protoc_gen_lint_options = '-I /Users/adam.sanghera/data/protobuf/src'
-let g:ale_python_pls_options = '-vv --log-file ~/yeet'
-let g:ale_python_pyls_config = {
+let g:ale_python_pylsp_executable = 'pyls'
+let g:ale_python_pylsp_config = {
 \  'pyls': {
 \    'plugins': {
 \      'pycodestyle': {
@@ -411,7 +423,7 @@ let g:SuperTabDefaultCompletionType = "<c-n>"
 
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
-  \   'rg --glob !.git --column --line-number --hidden --ignore-case --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" '.shellescape(<q-args>), 1,
+  \   "rg --glob '!.git' --column --line-number --hidden --ignore-case --no-heading --color=always --colors 'path:fg:190,220,255' --colors 'line:fg:128,128,128' ".shellescape(<q-args>), 1,
   \   <bang>0 ? fzf#vim#with_preview({}, 'up:60%')
   \           : fzf#vim#with_preview({}, 'right:50%:hidden', '?'),
   \   <bang>0)
@@ -425,3 +437,11 @@ highlight BadWhitespace ctermbg=red guibg=red
 au BufRead,BufNewFile *.py,*.pyw match BadWhitespace /^\t\+/
 " Make trailing whitespace be flagged as bad.
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+
+function! DisplayEnclosingLine()
+  let cmd = "ctags -f - --fields=n " . expand('%') . " | awk -F: '{ print $NF }'"
+  let cmd .= " | sort -nr | awk '" . line('.') . " >= $1 { print $1; exit }' "
+  let linenum = system(cmd)
+  let line = substitute(getline(linenum), '^\s*', '', 'g')
+  echo line
+endfunction
