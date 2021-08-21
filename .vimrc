@@ -28,6 +28,8 @@ if executable('rustc')
 endif
 """ Markdown / Pandoc
 Plug 'vim-pandoc/vim-pandoc-syntax'
+""" Csv
+Plug 'chrisbra/csv.vim'
 
 "" Efficiecny in Motions
 """ Async dispatch for things like make
