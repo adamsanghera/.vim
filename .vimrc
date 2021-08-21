@@ -9,19 +9,17 @@ endif
 call plug#begin('~/.vim/plugged')
 
 "" Random plugins offering language-specific support
-""" Go
-Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 """ Ledger
 Plug 'ledger/vim-ledger'
 """ Thrift
 Plug 'solarnz/thrift.vim'
+""" Syntax highlighting for jsx
+Plug 'maxmellon/vim-jsx-pretty'
 """ Erlang
 Plug 'vim-erlang/vim-erlang-runtime'
 Plug 'vim-erlang/vim-erlang-compiler'
 Plug 'vim-erlang/vim-erlang-omnicomplete'
 Plug 'vim-erlang/vim-erlang-tags'
-""" JS/X, with Flow
-Plug 'mxw/vim-jsx'
 """ Rust
 Plug 'neomake/neomake', { 'for': ['rust'] }
 if executable('rustc')
